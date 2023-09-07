@@ -1,0 +1,1 @@
+# Russian translation of [Ætherglow](https://translunar.academy) by Winter
