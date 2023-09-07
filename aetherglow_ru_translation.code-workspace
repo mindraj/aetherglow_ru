@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cSpell.language": "en,ru,ru-RU,en-US",
+		"cSpell.words": [
+			"Ætherglow",
+			"storytitle",
+			"Агендер",
+			"Гендерфлюид",
+			"Небинарный",
+			"связует",
+			"технопат",
+			"технопаты",
+			"Фембой",
+			"Цисгендер"
+		],
+		"files.associations": {
+			"*.md": "text"
+		},
+		"editor.wordWrap": "on"
+	},
+}
