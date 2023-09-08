@@ -2,6 +2,7 @@ title: Сияние Эфира #1
 storytitle: Сияние Эфира
 chapter: Создание Персонажа
 author: Винтер
+translator: Миндраж
 date: 2021-12-26 15:43:00
 legacy-poll: yes
 poll: Примерно опишите ваш гендер:
