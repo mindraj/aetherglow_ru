@@ -1,5 +1,5 @@
-title: Сияние Эфира #5
-storytitle: Сияние Эфира
+title: Отблески Эфира #5
+storytitle: Отблески Эфира
 chapter: Создание Персонажа
 author: Винтер
 translator: Миндраж
