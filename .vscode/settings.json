@@ -17,5 +17,6 @@
         "Малаперт",
         "Хайабуса",
         "Шеклтон"
-    ]
+    ],
+    "python.analysis.typeCheckingMode": "off"
 }
