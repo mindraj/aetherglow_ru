@@ -2,17 +2,33 @@ from pathlib import Path
 import json
 import re
 
-def parse(ae_file : str) -> dict:
+def parse(ae_str : str) -> dict:
     r_dict = {}
 
-    headers = re.findall(r".*: .*", ae_file)
-    for s in headers[:6]:
-        sp = s.split(":")
-        r_dict[sp[0]] = sp[1]
+    re_h = re.compile(r".*?\n\n", re.DOTALL)
+    re_k = re.compile(r".*?(?=[(:)])")
+    re_v = re.compile(r"(?<=[(:)]).*") 
+
+    header = re_h.match(ae_str).group()
+
+    for s in header.split('\n'):
+        
+        mk = re_k.search(s)
+        if (mk is None):
+            break
+
+        k = mk.group()
+        if (k == "poll"):
+            break
+        
+        mv = re_v.search(s)
+        v = mv.group().strip()
+
+        r_dict[k] = v
 
     return r_dict
 
-def validate(post : Path):
+def validate(post : Path) -> dict:
 
     errors = {}
 
@@ -32,12 +48,14 @@ def validate(post : Path):
                 errors["fields_absent"].append(h)
 
         if (input_headers.get('date') != en_headers['date']):
-            errors["fields_wrong"].append('date')
+           errors["fields_wrong"].append('date')
 
 
         return errors
 
-
+def display_errors(errors : dict) -> None:
+    print(errors)
+    return
 
 if __name__ == "__main__":
     # Load RU config
@@ -52,7 +70,12 @@ if __name__ == "__main__":
     p_errors = {}
     for p in ru_posts:
         p_errors[p.name] = validate(p)
-    
-    print(p_errors)
 
+        errors_n = 0
+        for v in p_errors[p.name].values():
+            errors_n += len(v)
 
+        if (errors_n == 0):
+            print(f"{p.name} is OK")
+        else:
+            display_errors(p_errors)
