@@ -28,7 +28,7 @@ def parse(ae_str : str) -> dict:
 
     return r_dict
 
-def validate(post : Path) -> dict:
+def validate(post : Path, config : dict) -> dict:
 
     errors = {}
 
@@ -50,6 +50,18 @@ def validate(post : Path) -> dict:
         if (input_headers.get('date') != en_headers['date']):
            errors["fields_wrong"].append('date')
 
+        r_ch = re.compile(r"(?<=[#]).*") 
+        r_t = re.compile(r".*(?=[#])")
+
+        in_ch_n = int(r_ch.search(input_headers['title']).group())
+        en_ch_n = int(r_ch.search(en_headers['title']).group())
+
+        # print(f"English chapter n: {en_ch_n}")
+        # print(f"Input chapter n: {in_ch_n}")
+
+        if (en_ch_n != in_ch_n):
+            errors["fields_wrong"].append('title')
+
 
         return errors
 
@@ -59,17 +71,18 @@ def display_errors(errors : dict) -> None:
 
 if __name__ == "__main__":
     # Load RU config
-    ru_conf = {}
+    conf = {}
     with open("scripts\helper\config.json", "r", encoding="utf8") as f:
-        ru_conf = json.load(f)
+        conf = json.load(f)
 
     chapter_num = int(input("Chapter: "))
     en_posts = Path(f"./en/Chapter {chapter_num}").glob("*.md")
     ru_posts = Path(f"./ru/{chapter_num}").glob("*.md")
 
-    p_errors = {}
+    
     for p in ru_posts:
-        p_errors[p.name] = validate(p)
+        p_errors = {}
+        p_errors[p.name] = validate(p, conf)
 
         errors_n = 0
         for v in p_errors[p.name].values():
