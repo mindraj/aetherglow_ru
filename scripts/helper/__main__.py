@@ -3,13 +3,18 @@ import json
 import re
 
 def parse(ae_str : str) -> dict:
-    r_dict = {}
+    r_dict = {} # return object
 
-    re_h = re.compile(r".*?\n\n", re.DOTALL)
-    re_k = re.compile(r".*?(?=[(:)])")
-    re_v = re.compile(r"(?<=[(:)]).*") 
+    # Regular expressions to parse the header
+    re_h = re.compile(r".*?\n\n", re.DOTALL) # to get the header
+    re_k = re.compile(r".*?(?=[(:)])") # to get key
+    re_v = re.compile(r"(?<=[(:)]).*") # to get value
 
-    header = re_h.match(ae_str).group()
+    header_match = re_h.match(ae_str)
+    if header_match is None: 
+        return r_dict
+
+    header = header_match.group()   
 
     for s in header.split('\n'):
         
@@ -28,7 +33,7 @@ def parse(ae_str : str) -> dict:
 
     return r_dict
 
-def validate(post : Path, config : dict) -> dict:
+def validate_post(post : Path, config : dict) -> dict:
 
     errors = {}
 
@@ -41,48 +46,33 @@ def validate(post : Path, config : dict) -> dict:
             "fields_absent" : [],
             "fields_wrong" : []
         }
+        
         for h in en_headers.keys():
-            try:
-                input_headers[h]
-            except KeyError:
+            if not input_headers.get(h):
                 errors["fields_absent"].append(h)
 
-        if (input_headers.get('date') != en_headers['date']):
-           errors["fields_wrong"].append('date')
+        if input_headers.get('date'):
+            if (input_headers.get('date') != en_headers['date']):
+                errors["fields_wrong"].append('date')
 
-        r_ch = re.compile(r"(?<=[#]).*") 
-        r_t = re.compile(r".*(?=[#])")
+        if input_headers.get("title"):
 
-        in_ch_n = int(r_ch.search(input_headers['title']).group())
-        en_ch_n = int(r_ch.search(en_headers['title']).group())
+            r_ch = re.compile(r"(?<=[#]).*") 
 
-        # print(f"English chapter n: {en_ch_n}")
-        # print(f"Input chapter n: {in_ch_n}")
+            in_ch_n = int(r_ch.search(input_headers['title']).group())
+            en_ch_n = int(r_ch.search(en_headers['title']).group())
 
-        if (en_ch_n != in_ch_n):
-            errors["fields_wrong"].append('title')
-
+            if (en_ch_n != in_ch_n):
+                errors["fields_wrong"].append('title')
+        
+        # r_t = re.compile(r".*(?=[#])")
 
         return errors
-
-def display_errors(errors : dict) -> None:
-    print(errors)
-    return
-
-if __name__ == "__main__":
-    # Load RU config
-    conf = {}
-    with open("scripts\helper\config.json", "r", encoding="utf8") as f:
-        conf = json.load(f)
-
-    chapter_num = int(input("Chapter: "))
-    en_posts = Path(f"./en/Chapter {chapter_num}").glob("*.md")
-    ru_posts = Path(f"./ru/{chapter_num}").glob("*.md")
-
     
-    for p in ru_posts:
+def display_p_errors(posts : dict) -> None:
+    for p in posts:
         p_errors = {}
-        p_errors[p.name] = validate(p, conf)
+        p_errors[p.name] = validate_post(p, conf)
 
         errors_n = 0
         for v in p_errors[p.name].values():
@@ -91,4 +81,35 @@ if __name__ == "__main__":
         if (errors_n == 0):
             print(f"{p.name} is OK")
         else:
-            display_errors(p_errors)
+            print(p_errors)
+
+def generate_posts(ch_num, conf):
+    en_posts = Path(f"./en/Chapter {chapter_num}").glob("*.md")
+    #new_path = f"./{conf.keys()[0]}"
+    for p in en_posts:
+
+        new_file_name = p.name[:len(".md")] + "_ru.md"
+        with open(f"./ru/{ch_num}/{new_file_name}", "w") as output_f:
+
+            errors = validate_post(output_f, conf)
+            for e in errors[new_file_name]["fields_absent"]:
+                pass
+            
+if __name__ == "__main__":
+    # Load RU config
+    conf = {}
+    with open("scripts\helper\config.json", "r", encoding="utf8") as f:
+        conf = json.load(f)
+
+    chapter_num = int(input("Chapter: "))
+    ru_posts = Path(f"./ru/{chapter_num}").glob("*.md")
+
+    action = input("Command: ")
+
+    match action.lower():
+        case "val":
+            display_p_errors(ru_posts)
+        case "gen":
+            generate_posts(chapter_num)
+    
+    
