@@ -1,3 +1,7 @@
 {
-    "python.analysis.typeCheckingMode": "off"
+    "python.analysis.typeCheckingMode": "off",
+    "cSpell.language": "en,ru-RU,ru",
+    "cSpell.words": [
+        "Королёва"
+    ]
 }
