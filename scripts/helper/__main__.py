@@ -1,4 +1,5 @@
 from pathlib import Path
+import os
 import json
 import re
 
@@ -89,7 +90,7 @@ def generate_posts(ch_num, conf):
     for p in en_posts:
 
         new_file_name = p.name[:len(".md")] + "_ru.md"
-        with open(f"./ru/{ch_num}/{new_file_name}", "w") as output_f:
+        with open(f"./{conf['lang']}/{ch_num}/{new_file_name}", "w") as output_f:
 
             errors = validate_post(output_f, conf)
             for e in errors[new_file_name]["fields_absent"]:
@@ -98,11 +99,12 @@ def generate_posts(ch_num, conf):
 if __name__ == "__main__":
     # Load RU config
     conf = {}
-    with open("scripts\helper\config.json", "r", encoding="utf8") as f:
+    directory=os.path.dirname(__file__)
+    with open(directory+"/config.json", "r", encoding="utf8") as f:
         conf = json.load(f)
 
     chapter_num = int(input("Chapter: "))
-    ru_posts = Path(f"./ru/{chapter_num}").glob("*.md")
+    ru_posts = Path(f"./{conf['lang']}/{chapter_num}").glob("*.md")
 
     action = input("Command: ")
 
@@ -111,5 +113,4 @@ if __name__ == "__main__":
             display_p_errors(ru_posts)
         case "gen":
             generate_posts(chapter_num)
-    
-    
+
